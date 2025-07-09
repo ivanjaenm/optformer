@@ -176,6 +176,7 @@ class IEEEFloatTokenSerializer(
     return ordered_set.OrderedSet(tokens)
 
   def to_str(self, f: float, /) -> str:
+    #print("to_str called with f:", f)
     sign = '+' if f >= 0 else '-'
     abs_f = abs(f)
     exponent = math.floor(np.log(abs_f) / np.log(self.base)) if abs_f > 0 else 0
@@ -193,8 +194,14 @@ class IEEEFloatTokenSerializer(
       return self.tokens_serializer.to_str([sign, '-'] + all_zeros)
     e = e.zfill(self.num_exponent_digits)
 
+    n = abs_f * self.base ** (self.num_mantissa_digits - 1 - exponent)
+
+    #print("f: ", f, "abs_f: ", abs_f, "exponent: ", exponent)
+    #print("base: ", self.base, "num_mantissa_digits: ", self.num_mantissa_digits)
+    #print("n: ", n, "type(n): ", type(n))
+
     mantissa = np.base_repr(
-        abs_f * self.base ** (self.num_mantissa_digits - 1 - exponent),
+        number=int(n),
         base=self.base,
     )
 
@@ -204,7 +211,9 @@ class IEEEFloatTokenSerializer(
       mantissa += '0' * (self.num_mantissa_digits - len(mantissa))
 
     raw_str = sign + exponent_sign + e + mantissa
-    return self.tokens_serializer.to_str(list(raw_str))
+    tokens = self.tokens_serializer.to_str(list(raw_str))
+    #print("to_str tokens:", tokens)
+    return tokens
 
   def from_str(self, s: str, /) -> float:
     tokens = self.tokens_serializer.from_str(s)

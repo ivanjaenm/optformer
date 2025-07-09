@@ -28,13 +28,16 @@ class ModelTest(parameterized.TestCase):
   @parameterized.parameters((None, None), (5, None), (None, 0.5), (3, 0.1))
   def test_e2e(self, top_k, top_p):
     # pylint: disable=invalid-name
-    encoder = tf.keras.models.Sequential([])
+    
+    feature_dim = 10
+    encoder = tf.keras.models.Sequential([
+        keras.layers.Input(shape=(feature_dim,)),  # or shape=(10,)
+        keras.layers.Dense(64, activation="relu"),
+    ])
     vocab = vocabs.UnnormalizedVocab()
     decoder = models.AttentionDecoder(encoder, vocab)
 
     num_data = 2000
-    feature_dim = 10
-
     # Generate 10D linear data.
     X = np.random.uniform(size=(num_data, feature_dim))
     weights = np.random.uniform(size=(feature_dim,))
@@ -47,7 +50,9 @@ class ModelTest(parameterized.TestCase):
             models.weighted_sparse_categorical_crossentropy,
             weights=np.array([0.3, 0.3, 0.09, 0.01, 0.01, 0.3, 0.5]),
         ),
+        run_eagerly=True,
     )
+
     decoder.fit(
         [X, Y_token_ids[:, :-1]],
         Y_token_ids,
