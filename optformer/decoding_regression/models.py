@@ -156,7 +156,6 @@ def weighted_sparse_categorical_crossentropy(labels, logits, weights=None):
   """Weighted version of sparse categorical cross entropy."""
 
   labels = tf.cast(labels, tf.int32)
-
   ce = tf.nn.sparse_softmax_cross_entropy_with_logits(labels, logits)
   if weights is None:
     return ce

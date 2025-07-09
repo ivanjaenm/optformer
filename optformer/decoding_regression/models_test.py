@@ -32,7 +32,7 @@ class ModelTest(parameterized.TestCase):
     feature_dim = 10
     encoder = tf.keras.models.Sequential([
         keras.layers.Input(shape=(feature_dim,)),  # or shape=(10,)
-        keras.layers.Dense(64, activation="relu"),
+        keras.layers.Dense(128, activation="relu"),
     ])
     vocab = vocabs.UnnormalizedVocab()
     decoder = models.AttentionDecoder(encoder, vocab)
@@ -42,7 +42,7 @@ class ModelTest(parameterized.TestCase):
     X = np.random.uniform(size=(num_data, feature_dim))
     weights = np.random.uniform(size=(feature_dim,))
     Y = np.sum(X * weights, axis=-1)
-    Y_token_ids = np.array([vocab.to_int(y) for y in Y])
+    Y_token_ids = np.array([vocab.to_int(y) for y in Y], dtype=np.int32)
 
     decoder.compile(
         keras.optimizers.Adam(learning_rate=1e-4),
